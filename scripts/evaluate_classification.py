@@ -67,4 +67,5 @@ def evaluate_model():
 
 if __name__ == "__main__":
     ensure_root()
+    os.makedirs(CLASSIFICATION_EVAL_OUTPUT_DIR, exist_ok=True)
     evaluate_model()
