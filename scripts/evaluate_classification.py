@@ -9,6 +9,7 @@ from utils.car_dataset import CarDataset
 from torch.utils.data import DataLoader
 from sklearn.metrics import classification_report, confusion_matrix
 from utils.path_util import ensure_root
+from tqdm import tqdm
 from config import CLASSIFICATION_DATASET_ROOT, CLASSIFICATION_BATCH_SIZE, \
     CLASSIFICATION_MODEL_TYPE, CLASSIFICATION_OUTPUT_DIR, \
     CLASSIFICATION_EVAL_OUTPUT_DIR, DEVICE, NUM_CLASSES
