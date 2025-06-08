@@ -2,7 +2,7 @@ import torch
 import seaborn as sns
 import matplotlib.pyplot as plt
 from torchvision import models
-from train_classification import CarDataset
+from utils.car_dataset import CarDataset
 from sklearn.metrics import classification_report, confusion_matrix
 from utils.path_util import ensure_root
 from config import CLASSIFICATION_DATASET_ROOT, CLASSIFICATION_BATCH_SIZE, \
