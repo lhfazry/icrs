@@ -48,7 +48,7 @@ def get_transforms():
 
 def train_model():
     # Initialize TensorBoard
-    writer = SummaryWriter()
+    writer = SummaryWriter(log_dir=OUTPUT_DIR)
     
     # Data loading
     train_transform, val_transform = get_transforms()
