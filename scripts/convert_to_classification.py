@@ -41,24 +41,39 @@ def load_coco_categories(json_path):
 
 def process_split(split_name):
     paths = get_paths()
-    input_dir = paths["input"][split]
-    output_dir = paths["output"][split]
+    input_dir = paths["input"][split_name]  # Fixed: use split_name instead of split
+    output_dir = paths["output"][split_name]
     
     # Load COCO annotations
     json_path = os.path.join(input_dir, "_annotations.coco.json")
     with open(json_path) as f:
         coco_data = json.load(f)
     
-    # Create category mapping and directories
-    categories = {cat['id']: cat['name'] for cat in coco_data['categories']}
+    # Create category mapping (exclude background)
+    categories = {
+        cat['id']: cat['name'] 
+        for cat in coco_data['categories'] 
+        if cat['name'].lower() != 'background'  # Exclude background
+    }
+    
+    # Skip if no valid categories found
+    if not categories:
+        print(f"No valid categories found (excluding background) in {split_name} split")
+        return
+    
+    # Create directories only for non-background categories
     for cat_name in categories.values():
         os.makedirs(os.path.join(output_dir, cat_name), exist_ok=True)
     
     # Create image path mapping
     image_paths = {img['id']: img['file_name'] for img in coco_data['images']}
     
-    # Process each annotation
+    # Process each annotation (filtering out background)
     for ann in tqdm(coco_data['annotations'], desc=f"Processing {split_name}"):
+        # Skip if category is background or not in our filtered categories
+        if ann['category_id'] not in categories:
+            continue
+            
         img_id = ann['image_id']
         cat_id = ann['category_id']
         
@@ -83,7 +98,7 @@ def process_split(split_name):
         # Crop the image
         crop = img.crop((x1, y1, x2, y2))
         
-        # Create square image with padding on bottom and right
+        # Create square image with padding
         max_dim = max(crop.width, crop.height)
         padded = Image.new('RGB', (max_dim, max_dim), PADDING_COLOR)
         padded.paste(crop, (0, 0))
