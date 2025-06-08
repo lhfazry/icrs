@@ -3,6 +3,7 @@ import torch
 import seaborn as sns
 import matplotlib.pyplot as plt
 import torch.nn as nn
+from utils.transform_util import get_transforms
 from torchvision import models
 from utils.car_dataset import CarDataset
 from torch.utils.data import DataLoader

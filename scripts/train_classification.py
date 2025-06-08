@@ -1,11 +1,12 @@
 import torch
+import os
 import torch.nn as nn
 import torch.optim as optim
-from torchvision import transforms, models
+from torchvision import models
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from utils.car_dataset import CarDataset
-import os
+from utils.transform_util import get_transforms
 from tqdm import tqdm
 from utils.path_util import ensure_root
 from config import CLASSIFICATION_DATASET_ROOT, CLASSIFICATION_BATCH_SIZE, \
@@ -25,26 +26,6 @@ PRETRAINED = True
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 OUTPUT_DIR = CLASSIFICATION_OUTPUT_DIR
-
-# Data Transforms
-def get_transforms():
-    train_transform = transforms.Compose([
-        transforms.RandomResizedCrop(224),
-        transforms.RandomHorizontalFlip(),
-        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
-        transforms.RandomRotation(15),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ])
-    
-    val_transform = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ])
-    
-    return train_transform, val_transform
 
 def train_model():
     # Initialize TensorBoard
