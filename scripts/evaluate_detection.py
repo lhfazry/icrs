@@ -1,7 +1,7 @@
 from detectron2.engine import DefaultPredictor
 from detectron2.evaluation import COCOEvaluator, inference_on_dataset
 from detectron2.data import build_detection_test_loader
-from train_detection import register_datasets
+from scripts.train_detection import register_datasets
 from utils.path_util import ensure_root
 from config import DATASET_NAME, DETECTION_OUTPUT_DIR, DETECTION_EVAL_OUTPUT_DIR, NUM_CLASSES, DETECTION_THRESHOLD
 
