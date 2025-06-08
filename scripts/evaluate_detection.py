@@ -5,6 +5,7 @@ from scripts.train_detection import register_datasets
 from detectron2.config import get_cfg
 from utils.path_util import ensure_root
 from config import DATASET_NAME, DETECTION_OUTPUT_DIR, DETECTION_EVAL_OUTPUT_DIR, NUM_CLASSES, DETECTION_THRESHOLD
+import os
 
 def evaluate():
     register_datasets()
