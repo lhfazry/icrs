@@ -152,4 +152,5 @@ def train_model():
 
 if __name__ == "__main__":
     ensure_root()
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
     train_model()
