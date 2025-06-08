@@ -53,7 +53,7 @@ def process_split(split_name):
     categories = {
         cat['id']: cat['name'] 
         for cat in coco_data['categories'] 
-        if cat['name'].lower() != 'background'  # Exclude background
+        if cat['name'].lower() != 'objects'  # Exclude background
     }
     
     # Skip if no valid categories found
