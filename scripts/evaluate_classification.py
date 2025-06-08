@@ -1,8 +1,10 @@
 import torch
 import seaborn as sns
 import matplotlib.pyplot as plt
+import torch.nn as nn
 from torchvision import models
 from utils.car_dataset import CarDataset
+from torch.utils.data import DataLoader
 from sklearn.metrics import classification_report, confusion_matrix
 from utils.path_util import ensure_root
 from config import CLASSIFICATION_DATASET_ROOT, CLASSIFICATION_BATCH_SIZE, \
