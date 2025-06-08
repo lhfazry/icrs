@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mkdirs -p weights
+mkdir -p weights
 gdown 1TdppuCurUb1oAMTCzGhApTny5Wb_IU0n -O weights/detection_best_model_config.pth
 gdown 1nup0-qnc69FSUUgZSsRHmAH5N3dxCxXE -O weights/detection_best_model.pth
 
