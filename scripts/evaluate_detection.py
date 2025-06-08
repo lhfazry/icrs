@@ -14,7 +14,7 @@ def evaluate():
     
     #cfg = get_cfg()
     #cfg.merge_from_file(os.path.join(DETECTION_OUTPUT_DIR, "detection_best_model_config.pth"))
-    cfg = torch.load(os.path.join(DETECTION_OUTPUT_DIR, "detection_best_model_config.pth"))
+    cfg = torch.load(os.path.join(DETECTION_OUTPUT_DIR, "detection_best_model_config.pth"), weights_only=False)
     cfg.MODEL.WEIGHTS = os.path.join(DETECTION_OUTPUT_DIR, "detection_best_model.pth")
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = DETECTION_THRESHOLD
     predictor = DefaultPredictor(cfg)
