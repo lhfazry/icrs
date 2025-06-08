@@ -112,4 +112,5 @@ def process_video():
 
 if __name__ == "__main__":
     ensure_root()
+    os.makedirs("output", exist_ok=True)
     process_video()
