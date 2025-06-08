@@ -9,8 +9,8 @@ def evaluate():
     register_datasets()
     
     cfg = get_cfg()
-    cfg.merge_from_file(os.path.join(DETECTION_OUTPUT_DIR, "config.pth"))
-    cfg.MODEL.WEIGHTS = os.path.join(DETECTION_OUTPUT_DIR, "model_final.pth")
+    cfg.merge_from_file(os.path.join(DETECTION_OUTPUT_DIR, "detection_best_model_config.pth"))
+    cfg.MODEL.WEIGHTS = os.path.join(DETECTION_OUTPUT_DIR, "detection_best_model.pth")
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = DETECTION_THRESHOLD
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = NUM_CLASSES
     predictor = DefaultPredictor(cfg)

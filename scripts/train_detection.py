@@ -45,9 +45,19 @@ def train_model():
     trainer.resume_or_load(resume=False)
     trainer.train()
     
-    # Save final weights
-    torch.save(cfg, os.path.join(cfg.OUTPUT_DIR, "config.pth"))    
-    print("Training completed!")
+    model_name = "detection_best_model"
+    # Save final weights with custom name
+    final_model_path = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
+    custom_model_path = os.path.join(cfg.OUTPUT_DIR, f"{model_name}.pth")
+    
+    # Rename the default final model to your custom name
+    if os.path.exists(final_model_path):
+        os.rename(final_model_path, custom_model_path)
+    
+    # Also save config with matching name
+    torch.save(cfg, os.path.join(cfg.OUTPUT_DIR, f"{model_name}_config.pth"))
+    
+    print(f"Training completed! Model saved as {custom_model_path}")
 
 if __name__ == "__main__":
     ensure_root()

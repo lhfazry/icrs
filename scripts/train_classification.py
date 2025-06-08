@@ -143,7 +143,7 @@ def train_model():
         # Save best model
         if epoch_acc > best_acc:
             best_acc = epoch_acc
-            torch.save(model.state_dict(), os.path.join(OUTPUT_DIR, "best_model.pth"))
+            torch.save(model.state_dict(), os.path.join(OUTPUT_DIR, "classification_best_model.pth"))
         
         scheduler.step()
     

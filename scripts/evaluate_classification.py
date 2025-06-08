@@ -22,7 +22,7 @@ def evaluate_model():
         num_ftrs = model.classifier[1].in_features
         model.classifier[1] = nn.Linear(num_ftrs, NUM_CLASSES)
     
-    model.load_state_dict(torch.load(os.path.join(CLASSIFICATION_OUTPUT_DIR, "best_model.pth")))
+    model.load_state_dict(torch.load(os.path.join(CLASSIFICATION_OUTPUT_DIR, "classification_best_model.pth")))
     model = model.to(DEVICE)
     model.eval()
     
