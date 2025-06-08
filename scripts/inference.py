@@ -1,47 +1,38 @@
 import cv2
-import torch
-import numpy as np
-from detectron2 import model_zoo
+import torch, os
 from detectron2.engine import DefaultPredictor
-from detectron2.config import get_cfg
-from torchvision import models, transforms
+from torchvision import models
 from PIL import Image
 from tqdm import tqdm
 from utils.path_util import ensure_root
-from torchvision import models, transforms
+from config import DEVICE, DETECTION_THRESHOLD, CLASSIFICATION_THRESHOLD
+from utils.transform_util import get_transforms
 
 # Configuration
 WEIGHT_FOLDER = "weights"
-VIDEO_PATH = "input_video.mp4"
-OUTPUT_PATH = "output_video.mp4"
-DETECTION_THRESHOLD = 0.7
-CLASSIFICATION_THRESHOLD = 0.5
-CAR_CLASS_ID = 2  # COCO class ID for cars
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-NUM_CLASSES = 7
+VIDEO_PATH = "data/input_video.mp4"
+OUTPUT_PATH = "output/output_video.mp4"
+class_names = ['Bajaj', 'Box', 'Hatchback', 'Minibus', 'MPV_SUV', 'Pickup-Truck', 'Sedan']
 
 # 1. Initialize Detection Model (Detectron2)
 def setup_detector():
-    cfg = get_cfg()
-    cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))
+    cfg = torch.load(os.path.join(WEIGHT_FOLDER, "detection_best_model_config.pth"), weights_only=False)
+    cfg.MODEL.WEIGHTS = os.path.join(WEIGHT_FOLDER, "detection_best_model.pth")
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = DETECTION_THRESHOLD
-    cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml")
-    cfg.MODEL.DEVICE = DEVICE
-    cfg.MODEL.ROI_HEADS.NUM_CLASSES = NUM_CLASSES
     return DefaultPredictor(cfg)
 
 # 2. Initialize Classification Model (ResNet/EfficientNet)
 def setup_classifier(model_type="efficientnet"):
-    num_classes = 7
+    num_classes = len(class_names)
     
     if model_type == "resnet":
         model = models.resnet50(pretrained=False)
         model.fc = torch.nn.Linear(model.fc.in_features, num_classes)
-        model.load_state_dict(torch.load(os.path.join(WEIGHT_FOLDER, "resnet_car_model.pth")))
+        model.load_state_dict(torch.load(os.path.join(WEIGHT_FOLDER, "classification_best_model.pth")))
     elif model_type == "efficientnet":
         model = models.efficientnet_b0(pretrained=False)
         model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, num_classes)
-        model.load_state_dict(torch.load(os.path.join(WEIGHT_FOLDER, "efficientnet_car_model.pth")))
+        model.load_state_dict(torch.load(os.path.join(WEIGHT_FOLDER, "classification_best_model.pth")))
     
     model = model.to(DEVICE)
     model.eval()
@@ -49,25 +40,14 @@ def setup_classifier(model_type="efficientnet"):
 
 # 3. Preprocessing for classification
 def preprocess_image(image):
-    transform = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
-    return transform(Image.fromarray(image)).unsqueeze(0).to(DEVICE)
-
-# 4. Load class names for classification
-def load_class_names(path="car_classes.txt"):
-    with open(path) as f:
-        return [line.strip() for line in f.readlines()]
+    _, test_transform = get_transforms()
+    return test_transform(Image.fromarray(image)).unsqueeze(0).to(DEVICE)
 
 # Main processing pipeline
 def process_video():
     # Initialize models
     detector = setup_detector()
     classifier = setup_classifier("efficientnet")  # or "resnet"
-    class_names = load_class_names()
     
     # Video setup
     cap = cv2.VideoCapture(VIDEO_PATH)
@@ -93,13 +73,12 @@ def process_video():
         outputs = detector(frame_rgb)
         instances = outputs["instances"]
         
-        # Filter only cars
-        car_indices = (instances.pred_classes == CAR_CLASS_ID).nonzero().flatten()
-        car_boxes = instances.pred_boxes[car_indices]
-        car_scores = instances.scores[car_indices]
+        #car_indices = (instances.pred_classes == CAR_CLASS_ID).nonzero().flatten()
+        car_boxes = instances.pred_boxes
+        car_scores = instances.scores
         
         # Process each detected car
-        for box, score in zip(car_boxes, car_scores):
+        for box, _ in zip(car_boxes, car_scores):
             x1, y1, x2, y2 = box.cpu().numpy().astype(int)
             
             # Crop and classify
