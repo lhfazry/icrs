@@ -1,21 +1,33 @@
 #!/bin/bash
 
-# Update pip and setuptools first
-pip install --upgrade pip setuptools
+# Pertama, pastikan environment bersih
+pip uninstall -y pyyaml detectron2 fvcore
 
-# Install pyyaml with newer version
-pip install pyyaml==5.4.1
+# Install dependencies system-level (untuk Colab/Ubuntu)
+sudo apt-get update
+sudo apt-get install -y build-essential python3-dev libopenmpi-dev
 
-# Remove existing detectron2 directory if exists
+# Buat virtual environment (opsional tapi direkomendasikan)
+python -m venv venv
+source venv/bin/activate
+
+# Update pip dan setuptools dengan cara yang lebih aman
+python -m pip install --upgrade "pip<25" "setuptools<80"
+
+# Install PyYAML dengan cara khusus
+pip install --no-cache-dir --force-reinstall -Iv pyyaml==5.4.1
+
+# Clone detectron2 (pastikan direktori kosong)
 rm -rf detectron2
+git clone https://github.com/facebookresearch/detectron2.git
 
-# Clone detectron2 repository
-git clone 'https://github.com/facebookresearch/detectron2'
-
-# Install detectron2
+# Install dengan opsi khusus
 cd detectron2
-pip install -e .
+pip install -e . \
+  --no-build-isolation \
+  --config-settings editable_mode=compat \
+  --use-pep517
 cd ..
 
-# Add detectron2 to Python path
-export PYTHONPATH=$(pwd)/detectron2:$PYTHONPATH
+# Verifikasi instalasi
+python -c "import detectron2; print(detectron2.__version__)"
