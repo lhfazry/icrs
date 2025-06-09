@@ -14,14 +14,12 @@ VIDEO_PATH = "data/input_video.mp4"
 OUTPUT_PATH = "output/output_video.mp4"
 class_names = ['Bajaj', 'Box', 'Bus', 'Hatchback', 'MPV_SUV', 'Minibus', 'Pickup-Truck', 'Sedan']
 
-# 1. Initialize Detection Model (Detectron2)
 def setup_detector():
     cfg = torch.load(os.path.join(WEIGHT_FOLDER, "detection_best_model_config.pth"), weights_only=False)
     cfg.MODEL.WEIGHTS = os.path.join(WEIGHT_FOLDER, "detection_best_model.pth")
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = DETECTION_THRESHOLD
     return DefaultPredictor(cfg)
 
-# 2. Initialize Classification Model (ResNet/EfficientNet)
 def setup_classifier(model_type="efficientnet"):
     num_classes = len(class_names)
     
@@ -38,25 +36,20 @@ def setup_classifier(model_type="efficientnet"):
     model.eval()
     return model
 
-# 3. Preprocessing for classification
 def preprocess_image(image):
     _, test_transform = get_transforms()
     return test_transform(Image.fromarray(image)).unsqueeze(0).to(DEVICE)
 
-# Main processing pipeline
 def process_video():
-    # Initialize models
     detector = setup_detector()
     classifier = setup_classifier("efficientnet")  # or "resnet"
     
-    # Video setup
     cap = cv2.VideoCapture(VIDEO_PATH)
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = cap.get(cv2.CAP_PROP_FPS)
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     
-    # Output video writer
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(OUTPUT_PATH, fourcc, fps, (width, height))
     
@@ -66,27 +59,21 @@ def process_video():
         if not ret:
             break
             
-        # Convert BGR to RGB
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         
-        # Detection
         outputs = detector(frame_rgb)
         instances = outputs["instances"]
         
-        #car_indices = (instances.pred_classes == CAR_CLASS_ID).nonzero().flatten()
         car_boxes = instances.pred_boxes
         car_scores = instances.scores
         
-        # Process each detected car
         for box, _ in zip(car_boxes, car_scores):
             x1, y1, x2, y2 = box.cpu().numpy().astype(int)
             
-            # Crop and classify
             car_crop = frame_rgb[y1:y2, x1:x2]
             if car_crop.size == 0:
                 continue
                 
-            # Preprocess and classify
             input_tensor = preprocess_image(car_crop)
             with torch.no_grad():
                 output = classifier(input_tensor)
@@ -102,10 +89,8 @@ def process_video():
                 cv2.putText(frame, label, (x1, y1-10), 
                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
         
-        # Write frame to output
         out.write(frame)
     
-    # Cleanup
     cap.release()
     out.release()
     cv2.destroyAllWindows()

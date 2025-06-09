@@ -14,6 +14,14 @@ pip install -r requirements.txt
 ./run_download_dataset.sh
 ```
 
+The dataset will be saved on `data/detection` folder. This is a detection dataset in COCO format. For classification dataset, we can convert it into classification dataset using `./run_dataset_conversion.sh`. This script also download the input video file into `data/input_video.mp4`.
+
+```bash
+./run_dataset_conversion.sh
+```
+
+The dataset will be saved on `data/classification` folder. To explore the dataset, you can use provided notebook [ICRS Dataset Exploration](notebooks/ICRS_Dataset_Exploration.ipynb).
+
 ### A. Inference On Pretrained Model
 
 #### 1. Download Pretrained Model
@@ -22,22 +30,26 @@ pip install -r requirements.txt
 ./run_download_pretrained_model.sh
 ```
 
+The weights will be saved on `weights` folder.
+
 #### 2. Run Inference
 
 ```bash
-python inference.py --image_path path/to/image.jpg --model_path path/to/model.pth
+./run_inference.sh
 ```
+
+The inference script assume there is a video file located at `data/input_video.mp4` and the result will be saved on `data/output_video.mp4`.
 
 ### B.Training
 
 #### 1. Training Detection Model
 
 ```bash
-python train_detection.py
+./run_train_detection.sh
 ```
 
 #### 2. Training Classification Model
 
 ```bash
-python train_classification.py
+./run_train_classification.sh
 ```

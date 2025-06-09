@@ -8,20 +8,16 @@ from utils.trainer import Trainer
 from utils.path_util import ensure_root
 from config import DATASET_NAME, DETECTION_OUTPUT_DIR, NUM_CLASSES
 
-# Setup logger
 setup_logger()
 
-# Dataset registration
 def register_datasets():
     register_coco_instances(f"{DATASET_NAME}_train", {}, "data/detection/train/_annotations.coco.json", "data/detection/train")
     register_coco_instances(f"{DATASET_NAME}_val", {}, "data/detection/valid/_annotations.coco.json", "data/detection/valid")
     register_coco_instances(f"{DATASET_NAME}_test", {}, "data/detection/test/_annotations.coco.json", "data/detection/test")
 
 def train_model():
-    # Register datasets
     register_datasets()
     
-    # Configuration
     cfg = get_cfg()
     cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))
     cfg.DATASETS.TRAIN = (f"{DATASET_NAME}_train",)
@@ -36,25 +32,20 @@ def train_model():
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = NUM_CLASSES
     cfg.MODEL.DEVICE = "cuda" if torch.cuda.is_available() else "cpu" # Use GPU if available
     
-    # Output directory
     os.makedirs(DETECTION_OUTPUT_DIR, exist_ok=True)
     cfg.OUTPUT_DIR = DETECTION_OUTPUT_DIR
     
-    # Train
     trainer = Trainer(cfg)
     trainer.resume_or_load(resume=False)
     trainer.train()
     
     model_name = "detection_best_model"
-    # Save final weights with custom name
     final_model_path = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
     custom_model_path = os.path.join(cfg.OUTPUT_DIR, f"{model_name}.pth")
     
-    # Rename the default final model to your custom name
     if os.path.exists(final_model_path):
         os.rename(final_model_path, custom_model_path)
     
-    # Also save config with matching name
     torch.save(cfg, os.path.join(cfg.OUTPUT_DIR, f"{model_name}_config.pth"))
     
     print(f"Training completed! Model saved as {custom_model_path}")

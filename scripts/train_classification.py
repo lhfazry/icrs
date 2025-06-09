@@ -28,10 +28,8 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 OUTPUT_DIR = CLASSIFICATION_OUTPUT_DIR
 
 def train_model():
-    # Initialize TensorBoard
     writer = SummaryWriter(log_dir=OUTPUT_DIR)
     
-    # Data loading
     train_transform, val_transform = get_transforms()
     
     train_dataset = CarDataset(os.path.join(DATASET_ROOT, "train"), train_transform)
@@ -42,7 +40,6 @@ def train_model():
     val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, 
                            shuffle=False, num_workers=NUM_WORKERS, pin_memory=True)
     
-    # Model initialization
     if MODEL_TYPE.startswith("resnet"):
         model = models.__dict__[MODEL_TYPE](pretrained=PRETRAINED)
         num_ftrs = model.fc.in_features
@@ -54,19 +51,16 @@ def train_model():
     
     model = model.to(DEVICE)
     
-    # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE)
     scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
     
-    # Training loop
     best_acc = 0.0
     
     for epoch in range(NUM_EPOCHS):
         print(f"Epoch {epoch+1}/{NUM_EPOCHS}")
         print("-" * 10)
         
-        # Training phase
         model.train()
         running_loss = 0.0
         running_corrects = 0
@@ -96,7 +90,6 @@ def train_model():
         
         print(f"Train Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}")
         
-        # Validation phase
         model.eval()
         running_loss = 0.0
         running_corrects = 0

@@ -17,7 +17,6 @@ from config import CLASSIFICATION_DATASET_ROOT, CLASSIFICATION_BATCH_SIZE, \
 MODEL_TYPE = CLASSIFICATION_MODEL_TYPE
 
 def evaluate_model():
-    # Load best model
     model = models.__dict__[MODEL_TYPE](pretrained=False)
     
     if MODEL_TYPE.startswith("resnet"):
@@ -51,10 +50,8 @@ def evaluate_model():
             all_preds.extend(preds.cpu().numpy())
             all_labels.extend(labels.cpu().numpy())
     
-    # Generate classification report
     print(classification_report(all_labels, all_preds, target_names=test_dataset.classes))
     
-    # Generate confusion matrix
     cm = confusion_matrix(all_labels, all_preds)
     plt.figure(figsize=(15, 15))
     sns.heatmap(cm, annot=True, fmt="d", xticklabels=test_dataset.classes, 
