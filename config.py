@@ -2,7 +2,7 @@ import torch
 
 ## General
 DATASET_NAME = 'icrs'
-NUM_CLASSES = 7
+NUM_CLASSES = 8
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 WEIGHT_FOLDER = "weights"
 
