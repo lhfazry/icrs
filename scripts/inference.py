@@ -12,7 +12,7 @@ from utils.transform_util import get_transforms
 WEIGHT_FOLDER = "weights"
 VIDEO_PATH = "data/input_video.mp4"
 OUTPUT_PATH = "output/output_video.mp4"
-class_names = ['Bajaj', 'Box', 'Hatchback', 'Minibus', 'MPV_SUV', 'Pickup-Truck', 'Sedan']
+class_names = ['Bajaj', 'Box', 'Bus', 'Hatchback', 'MPV_SUV', 'Minibus', 'Pickup-Truck', 'Sedan']
 
 # 1. Initialize Detection Model (Detectron2)
 def setup_detector():
